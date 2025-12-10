@@ -1,0 +1,7 @@
+venv/
+__pycache__/
+secrets.json
+Ideas.txt
+benchmark_visuals.py
+verify_visual_processing.py
+.DS_Store

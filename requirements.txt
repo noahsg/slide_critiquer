@@ -1,0 +1,10 @@
+streamlit
+google-generativeai
+chromadb
+sentence-transformers
+Pillow
+PyMuPDF
+numpy
+cloudconvert
+torch
+requests
