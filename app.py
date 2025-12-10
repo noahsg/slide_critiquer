@@ -300,6 +300,14 @@ with tab1:
                             )
                             
                             for idx, ref_path in enumerate(similar_slides):
+                                # Sanitize path for Cloud/Local compatibility
+                                if "slide_images" in ref_path:
+                                    # Split to remove user-specific absolute path prefix
+                                    # Keeps everything after "slide_images"
+                                    rel_part = ref_path.split("slide_images")[-1].lstrip(os.sep)
+                                    # Reconstruct using the current environment's BASE_DIR
+                                    ref_path = os.path.join(BASE_DIR, "slide_images", rel_part)
+                                
                                 if os.path.exists(ref_path):
                                     st.image(ref_path, use_container_width=True, caption=f"Gold Standard #{idx+1}")
                                 else:
