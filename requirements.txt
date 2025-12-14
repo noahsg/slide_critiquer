@@ -2,6 +2,8 @@ streamlit
 google-generativeai
 chromadb
 sentence-transformers
+transformers
+tf-keras
 Pillow
 PyMuPDF
 numpy
@@ -9,4 +11,7 @@ cloudconvert
 torch
 requests
 tensorflow
-pandasmatplotlib
+pandas
+matplotlib
+seaborn
+scikit-learn

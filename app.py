@@ -1,5 +1,8 @@
-import streamlit as st
 import os
+# FORCE LEGACY KERAS for Transformers compatibility
+os.environ["TF_USE_LEGACY_KERAS"] = "1"
+
+import streamlit as st
 import shutil
 from pathlib import Path
 import logging
@@ -268,6 +271,15 @@ with tab1:
                 with col_result_left:
                     st.write("**YOUR SLIDE**")
                     st.image(current_slide_path, width="stretch", caption=f"Slide {i+1}")
+                    
+                    # --- AI CLASSIFICATION ---
+                    with st.spinner("Classifying slide structure..."):
+                        predicted_tags = VB_encoder.classify_image(current_slide_path)
+                        
+                    if predicted_tags:
+                        st.success(f"**Detected Types:** {', '.join(predicted_tags)}")
+                    else:
+                        st.info("No specific structural tags detected.")
                 
                 # 2. AI Critique (Only if Full Mode)
                 if col_result_mid:
@@ -285,36 +297,34 @@ with tab1:
                                 st.error(f"Error during critique: {e}")
                 
                 # 3. Reference Examples
+                # 3. Reference Examples
                 with col_result_right:
                     st.write("**REFERENCE EXAMPLES**")
-                    with st.spinner("Fetching similar slides..."):
-                        try:
-                            # query_similar_slides returns paths to similar images
-                            # Logic updated to filter for GOLD_IMG_DIR inside VB_encoder or implicitly
+                    with st.spinner("Finding similar slides..."):
+                        # Returns list of tuples: (path, method_used)
+                        similar_results = VB_encoder.query_similar_slides(
+                            current_slide_path, 
+                            input_text_content=query_text,
+                            n_results=3, 
+                            visual_weight=v_weight,
+                            filter_tags=predicted_tags
+                        )
+                    
+                    if not similar_results:
+                        st.info("No similar slides found.")
+                    else:
+                        # Extract method from first result
+                        method_msg = similar_results[0][1]
+                        if "Fallback" in method_msg:
+                            st.warning(f"Note: {method_msg}")
+                        else:
+                            st.caption(f"Search Method: {method_msg}")
                             
-                            similar_slides = VB_encoder.query_similar_slides(
-                                current_slide_path, 
-                                input_text_content=query_text, 
-                                n_results=3,
-                                visual_weight=v_weight
-                            )
-                            
-                            for idx, ref_path in enumerate(similar_slides):
-                                # Sanitize path for Cloud/Local compatibility
-                                if "slide_images" in ref_path:
-                                    # Split to remove user-specific absolute path prefix
-                                    # Keeps everything after "slide_images"
-                                    rel_part = ref_path.split("slide_images")[-1].lstrip(os.sep)
-                                    # Reconstruct using the current environment's BASE_DIR
-                                    ref_path = os.path.join(BASE_DIR, "slide_images", rel_part)
-                                
-                                if os.path.exists(ref_path):
-                                    st.image(ref_path, width="stretch", caption=f"Gold Standard #{idx+1}")
-                                else:
-                                    st.warning(f"Reference image missing: {os.path.basename(ref_path)}")
-                                    
-                        except Exception as e:
-                            st.error(f"Error fetching references: {e}")
+                        for ref_path, _ in similar_results:
+                            if os.path.exists(ref_path):
+                                st.image(ref_path, width="stretch")
+                            else:
+                                st.error(f"Reference image missing: {os.path.basename(ref_path)}")
                 
                 st.markdown("---")
 
@@ -338,6 +348,15 @@ with tab2:
             
         # Optional metadata input as per screenshot
         deck_tag = st.text_input("Deck Category/Tag (Optional)", placeholder="e.g., Market Analysis, Strategy, Financial")
+        
+        # --- MANUAL TAGGING UI ---
+        st.write("**Manual Structural Tags (Gold Standard)**")
+        st.caption("Select structural tags for these slides. If left empty, AI will auto-tag them.")
+        manual_tags = st.multiselect(
+            "Select Tags",
+            options=VB_encoder.CLASS_NAMES, 
+            default=[]
+        )
         
         col_add, col_reset = st.columns([1, 1])
         
@@ -391,7 +410,7 @@ with tab2:
                                     if doc and s_idx < len(doc):
                                         slide_text = doc[s_idx].get_text()
                                         
-                                    if VB_encoder.add_slide_to_memory(s_path, text_content=slide_text):
+                                    if VB_encoder.add_slide_to_memory(s_path, text_content=slide_text, manual_tags=manual_tags):
                                         count += 1
                                     # Update inner progress bar
                                     file_progress_bar.progress((s_idx + 1) / num_slides)
