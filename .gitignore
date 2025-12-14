@@ -5,3 +5,7 @@ Ideas.txt
 benchmark_visuals.py
 verify_visual_processing.py
 .DS_Store
+generate_gold_standard_csv.py
+gold_standard_tags_original.csv
+checkpoints
+production_model_2.keras

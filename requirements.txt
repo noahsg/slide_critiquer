@@ -8,3 +8,5 @@ numpy
 cloudconvert
 torch
 requests
+tensorflow
+pandasmatplotlib

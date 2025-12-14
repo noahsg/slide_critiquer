@@ -10,7 +10,27 @@ An AI-powered application designed to critique presentation slides against "Gold
 *   **Privacy-Focused**: Runs locally or on Streamlit Cloud with secure API key management.
 *   **PPTX Support**: Automatic conversion of PowerPoint files to PDF for analysis (requires CloudConvert API).
 
-## Technology Stack
+
+## Automated Slide Classifier (Computer Vision)
+
+An optimized computer vision pipeline designed to classify slides into 7 structural archetypes (e.g., Data Charts, Process Flows).
+
+**⚙️ Methodology**
+*   **Architecture**: MobileNetV2 (Transfer Learning) with a custom Global Average Pooling head, selected for inference latency and parameter efficiency.
+*   **Imbalance Handling**: Utilized training class weights (up to 5.0x for rare classes) and stratified validation to prevent bias towards text-heavy slides.
+
+**🧪 Optimization & Inference**
+*   **The Sweet Spot**: Using an automated checkpoint the model with the highest macro recall was selected. This means that that the average recall across all classes was the highest.
+*   **Dynamic Per-Class Thresholding**: Abandoned global thresholds in favor of class-specific gates:
+    *   *High Precision (0.8)* for **Strategic Text** to prevent hallucinations.
+    *   *High Recall (0.3)* for **Charts/Flows** to capture visually diverse edge cases.
+
+**📈 Custom Evaluation**
+*   **Error Balance Sheets**: Developed custom visualization tools to distinguish between "Hallucinations" (False Positives) and "Missed Slides" (False Negatives), driving the dynamic threshold strategy.
+*   **Cross-Contamination Matrix**: A heatmap specifically designed to show which classes were being confused with each other (e.g., verifying that Frameworks were often misclassified as Process Flows).
+
+## Tech Stack
+
 
 *   **Frontend**: Streamlit
 *   **AI Model**: Google Gemini (via `google-generativeai`)

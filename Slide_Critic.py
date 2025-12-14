@@ -134,7 +134,9 @@ def critique_slide(user_slide_path, user_slide_text="", visual_weight=0.7):
         "2. Do NOT copy the example text. Write NEW bullets specific to the User Draft.",
         "3. Use the exact format above: two headers (Visual Feedback, Content Feedback) with 3 bullets each.",
         "4. Start every bullet with a strong imperative verb (e.g., 'Remove', 'Align', 'Quantify').",
-        "5. Be fluid: If the issue is whitespace, talk about whitespace. If it's data sorting, talk about data sorting."
+        "5. Be fluid: If the issue is whitespace, talk about whitespace. If it's data sorting, talk about data sorting.",
+
+        "***You are limited to only outputing Visual Feedback and Content Feedback. Do not output any other text.***"
     ]
 
     # THE API CALL

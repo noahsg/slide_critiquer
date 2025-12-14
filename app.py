@@ -267,7 +267,7 @@ with tab1:
                 # 1. User Slide
                 with col_result_left:
                     st.write("**YOUR SLIDE**")
-                    st.image(current_slide_path, use_container_width=True, caption=f"Slide {i+1}")
+                    st.image(current_slide_path, width="stretch", caption=f"Slide {i+1}")
                 
                 # 2. AI Critique (Only if Full Mode)
                 if col_result_mid:
@@ -309,7 +309,7 @@ with tab1:
                                     ref_path = os.path.join(BASE_DIR, "slide_images", rel_part)
                                 
                                 if os.path.exists(ref_path):
-                                    st.image(ref_path, use_container_width=True, caption=f"Gold Standard #{idx+1}")
+                                    st.image(ref_path, width="stretch", caption=f"Gold Standard #{idx+1}")
                                 else:
                                     st.warning(f"Reference image missing: {os.path.basename(ref_path)}")
                                     
