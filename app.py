@@ -16,6 +16,26 @@ import PDF_Translator
 import Cloud_Converter
 import fitz # PyMuPDF
 import time
+import tensorflow as tf
+
+@st.cache_resource
+def load_critic_model():
+    """But loads the model uniquely via Streamlit cache and injects it into VB_encoder."""
+    # Debug: LFS Check
+    model_path = VB_encoder.CLASSIFIER_MODEL_PATH
+    if os.path.exists(model_path):
+        size = os.path.getsize(model_path)
+        st.write(f"Model file found! Size: {size / 1024:.2f} KB")
+        if size < 5000: # < 5KB
+             st.error("🚨 ERROR: Your model file is too small (<5KB). Streamlit loaded the LFS pointer, not the actual model.")
+    else:
+        st.error("🚨 Model file not found.")
+
+    model = VB_encoder.load_local_classifier()
+    return model
+
+# Load and Inject Model
+VB_encoder.classifier_model = load_critic_model()
 
 # --- PATH CONFIGURATION ---
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))

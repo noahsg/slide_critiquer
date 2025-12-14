@@ -50,14 +50,21 @@ def grayscale_pipe(x):
 CLASSIFIER_MODEL_PATH = os.path.join(BASE_DIR, "multilabeling_model.keras")
 classifier_model = None
 
-try:
-    if os.path.exists(CLASSIFIER_MODEL_PATH):
-        print(f"Loading Classifier Model from {CLASSIFIER_MODEL_PATH}...")
-        classifier_model = load_model(CLASSIFIER_MODEL_PATH, custom_objects={"grayscale_pipe": grayscale_pipe})
-    else:
-        print("⚠️ Classifier model not found. Auto-tagging will be disabled.")
-except Exception as e:
-    print(f"⚠️ Error loading classifier model: {e}")
+CLASSIFIER_MODEL_PATH = os.path.join(BASE_DIR, "multilabeling_model.keras")
+classifier_model = None
+
+def load_local_classifier():
+    """Loads and returns the classifier model so it can be cached externally."""
+    try:
+        if os.path.exists(CLASSIFIER_MODEL_PATH):
+            print(f"Loading Classifier Model from {CLASSIFIER_MODEL_PATH}...")
+            return load_model(CLASSIFIER_MODEL_PATH, custom_objects={"grayscale_pipe": grayscale_pipe})
+        else:
+            print("⚠️ Classifier model not found. Auto-tagging will be disabled.")
+            return None
+    except Exception as e:
+        print(f"⚠️ Error loading classifier model: {e}")
+        return None
 
 # Threshold Configuration
 THRESHOLD_MAP = {
@@ -195,6 +202,14 @@ def classify_image(image_path):
     """
     Returns a list of predicted tags for a given image using the keras model.
     """
+    """
+    Returns a list of predicted tags for a given image using the keras model.
+    """
+    # Lazy load if not already loaded (allows for external caching or standalone use)
+    global classifier_model
+    if not classifier_model:
+        classifier_model = load_local_classifier()
+        
     if not classifier_model: return []
     
     try:
