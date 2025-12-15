@@ -1,6 +1,11 @@
 import os
-# FORCE LEGACY KERAS for Transformers compatibility
-os.environ["TF_USE_LEGACY_KERAS"] = "1"
+# --- SQLITE3 FIX FOR STREAMLIT CLOUD (MUST BE FIRST) ---
+try:
+    __import__('pysqlite3')
+    import sys
+    sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
+except ImportError:
+    pass # Local Mac dev probably fails this, which is fine
 
 import streamlit as st
 import shutil
@@ -21,18 +26,34 @@ import tensorflow as tf
 @st.cache_resource
 def load_critic_model():
     """But loads the model uniquely via Streamlit cache and injects it into VB_encoder."""
+    model_loading_status = {"success": False, "error": None}
+    
     # Debug: LFS Check
     model_path = VB_encoder.CLASSIFIER_MODEL_PATH
     if os.path.exists(model_path):
         size = os.path.getsize(model_path)
-        st.write(f"Model file found! Size: {size / 1024:.2f} KB")
+        # st.write(f"Model file found! Size: {size / 1024:.2f} KB") # Commented out for cleaner UI
         if size < 5000: # < 5KB
-             st.error("🚨 ERROR: Your model file is too small (<5KB). Streamlit loaded the LFS pointer, not the actual model.")
+             err_msg = "🚨 ERROR: Your model file is too small (<5KB). LFS Pointer detected."
+             st.error(err_msg)
+             model_loading_status["error"] = err_msg
+             return None
     else:
-        st.error("🚨 Model file not found.")
+        err_msg = "🚨 Model file not found."
+        st.error(err_msg)
+        model_loading_status["error"] = err_msg
+        return None
 
-    model = VB_encoder.load_local_classifier()
-    return model
+    try:
+        model = VB_encoder.load_local_classifier()
+        if model:
+            model_loading_status["success"] = True
+            return model
+        else:
+            return None
+    except Exception as e:
+        st.error(f"Failed to load model architecture: {e}")
+        return None
 
 # Load and Inject Model
 VB_encoder.classifier_model = load_critic_model()
