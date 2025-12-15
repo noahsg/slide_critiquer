@@ -100,7 +100,7 @@ def critique_slide(user_slide_path, user_slide_text="", visual_weight=0.7):
     
     # Upload Reference Slides
     reference_files = []
-    for path in similar_paths:
+    for path, match_method in similar_paths:
         reference_files.append(upload_to_gemini(path))
     
     # C. THE PROMPT
