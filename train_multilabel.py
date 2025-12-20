@@ -362,9 +362,9 @@ y_pred_probs = np.vstack(y_pred_list)[:validation_dataset.samples]
 THRESHOLD_MAP = {
     'Appendix_Reference':  0.3,
     'Data_Chart':          0.3, 
-    'Framework_Structure': 0.5,  
+    'Framework_Structure': 0.7,  
     'Graphics_Visuals':    0.4,
-    'Process_Flow':        0.3,  
+    'Process_Flow':        0.25,  
     'Strategic_Text':      0.5,  
     'Title_Transition':    0.5
 }

@@ -59,13 +59,13 @@ def pdf_to_images(pdf_path, output_folder="slide_images"):
 if __name__ == "__main__":
 
     # Finding the pdf_path
-    pdf_path = os.path.join(find_pdffolder_path(), "validation.pdf")
+    pdf_path = os.path.join(find_pdffolder_path(), "kaufland_mctryouts.pdf")
 
     if not os.path.exists(pdf_path):
         print(f"Error: PDF file {pdf_path} does not exist.")
         exit()  # <--- CHANGED THIS (stops the script)
     else:
-        images = pdf_to_images(pdf_path, output_folder="slide_images/validation_set"  )
+        images = pdf_to_images(pdf_path, output_folder="slide_images/training_set"  )
         # 'images' is a list of file paths, so printing it might be huge. 
         # Let's just print the count:
         print(f"Success! Saved {len(images)} images.")
