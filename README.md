@@ -1,5 +1,7 @@
 # Consulting Slide Critique Tool ✦
 
+Try out the tool: https://mctslidecritic.streamlit.app/
+
 An AI-powered application designed to critique presentation slides against "Gold Standard" examples. This tool uses **Google Gemini** for reasoning and a **Hybrid Search (Visual + Text)** system to find relevant reference slides from an internal knowledge base.
 
 ## Key Features
