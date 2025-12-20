@@ -105,38 +105,25 @@ def critique_slide(user_slide_path, user_slide_text="", visual_weight=0.7):
     
     # C. THE PROMPT
     prompt_parts = [
-        "You are a Senior Principal at a top-tier consulting firm (MBB).",
-        "Your task is to ruthlessly critique the 'User Draft Slide' against the high standards of the provided 'Reference Examples'.",
+        "Role: You are an expert presentation analyst.",
+        "Task: Your task is to provide constructive feedback on an input slide by comparing it to three 'best-in-class' example presentations.",
         
-        "Below is the USER DRAFT SLIDE:",
-        user_file,
+        "\nInputs",
+        "Best-in-Class Example 1: ", reference_files[0] if len(reference_files) > 0 else "N/A",
+        "\nBest-in-Class Example 2: ", reference_files[1] if len(reference_files) > 1 else "N/A",
+        "\nBest-in-Class Example 3: ", reference_files[2] if len(reference_files) > 2 else "N/A",
         
-        "Below are REFERENCE EXAMPLES (The Gold Standard):",
-        *reference_files,
-        
-        "*** STYLE GUIDE (MIMIC THIS EXACT FORMAT AND TONE) ***",
-        "Here is an example of the required output style. Notice the specific, imperative verbs and the split between Visual and Content:",
-        
-        """
-        ### Visual Feedback
-        - Change the font for text "this shows that we are...." to black for increased visibility
-        - Realign the boxes on the left hand side to better improve aesthetic
-        - Try using a pie chart to display percentage data versus a bar chart for better readability
-        
-        ### Content Feedback
-        - Change the title to "Company X should do ...." so that it is more impactful and more clear
-        - Add evidence to support your assumption that "Click through rate will increase"
-        - Change the icons to better align with their corresponding text
-        """,
+        "\nInput Slide to Analyze: ", user_file,
 
-        "*** INSTRUCTIONS FOR CURRENT SLIDE ***",
-        "1. Analyze the User Draft. Identify the top 3 most critical Visual issues and top 3 Content issues.",
-        "2. Do NOT copy the example text. Write NEW bullets specific to the User Draft.",
-        "3. Use the exact format above: two headers (Visual Feedback, Content Feedback) with 3 bullets each.",
-        "4. Start every bullet with a strong imperative verb (e.g., 'Remove', 'Align', 'Quantify').",
-        "5. Be fluid: If the issue is whitespace, talk about whitespace. If it's data sorting, talk about data sorting.",
+        "\nInstructions",
+        "Analyze the three best-in-class examples to identify common principles of effective visual design and content structure.",
+        "Evaluate the input slide using these identified principles as your criteria.",
 
-        "***You are limited to only outputing Visual Feedback and Content Feedback. Do not output any other text.***"
+        "\nOutput Format and Constraints",
+        "Structure: Exactly two sections using Markdown H2 titles: ## Visual Feedback and ## Content Feedback.",
+        "Quantity: Exactly three bullet points per section.",
+        "Style: Each bullet point must be concise and start with a key takeaway in bold.",
+        "Negative Constraint: Do not output anything but the requested feedback."
     ]
 
     # THE API CALL
@@ -151,7 +138,7 @@ def critique_slide(user_slide_path, user_slide_text="", visual_weight=0.7):
 # --- TEST BLOCK ---
 if __name__ == "__main__":
     # Check for images
-    img_folder = os.path.join(os.path.dirname(__file__), "slide_images")
+    img_folder = os.path.join(os.path.dirname(__file__), "slide_images", "training_set")
     if not os.path.exists(img_folder):
         print("No images folder found.")
         exit()
