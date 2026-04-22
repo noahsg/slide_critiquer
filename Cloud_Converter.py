@@ -2,6 +2,7 @@ import cloudconvert
 import os
 import time
 import json
+import streamlit as st
 
 def load_api_key():
     """Attempts to load the CloudConvert API key from secrets.json"""
@@ -15,6 +16,7 @@ def load_api_key():
         print(f"Error reading secrets.json: {e}")
     return None
 
+@st.cache_data
 def convert_pptx_to_pdf(input_path, output_path):
     """
     Converts a PPTX file to PDF using CloudConvert API.

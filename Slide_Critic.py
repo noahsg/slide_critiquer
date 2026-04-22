@@ -77,7 +77,7 @@ except Exception as e:
     print(f"Error selecting model: {e}")
     exit()
 
-# CRITIQUE SLIDE
+@st.cache_data(show_spinner=False)
 def critique_slide(user_slide_path, user_slide_text="", visual_weight=0.7):
     
     # Get context for model slides

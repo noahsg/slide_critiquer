@@ -1,6 +1,7 @@
 import fitz
 import os
 import uuid
+import streamlit as st
 
 # Create a function to find pdf_path
 def find_pdffolder_path():
@@ -13,6 +14,7 @@ def find_pdffolder_path():
     
     return pdf_folder_path
 
+@st.cache_data
 def pdf_to_images(pdf_path, output_folder="slide_images"):
     
     # Create output folder if it doesn't exist

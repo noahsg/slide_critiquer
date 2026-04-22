@@ -14,6 +14,6 @@ pandas
 matplotlib
 seaborn
 scikit-learn
-tensorflow-cpu
+tensorflow
 h5py
-pysqlite3-binary
+

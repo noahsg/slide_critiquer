@@ -8,6 +8,7 @@ import numpy as np
 import tensorflow as tf
 import pandas as pd
 from tensorflow.keras.models import load_model
+import streamlit as st
 
 # --- CONFIGURATION ---
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -31,15 +32,23 @@ else:
 # --- 2. MODEL SETUP ---
 # Visual Model (CLIP)
 VISUAL_MODEL_NAME = "openai/clip-vit-base-patch32"
-print(f"Loading Visual Model: {VISUAL_MODEL_NAME} to {DEVICE}...")
-visual_processor = CLIPProcessor.from_pretrained(VISUAL_MODEL_NAME)
-visual_model = CLIPModel.from_pretrained(VISUAL_MODEL_NAME).to(DEVICE)
+
+@st.cache_resource
+def load_visual_model():
+    print(f"Loading Visual Model: {VISUAL_MODEL_NAME} to {DEVICE}...")
+    visual_processor = CLIPProcessor.from_pretrained(VISUAL_MODEL_NAME)
+    visual_model = CLIPModel.from_pretrained(VISUAL_MODEL_NAME).to(DEVICE)
+    return visual_processor, visual_model
 
 # Text Model (MiniLM)
 from sentence_transformers import SentenceTransformer
 TEXT_MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
-print(f"Loading Text Model: {TEXT_MODEL_NAME}...")
-text_model = SentenceTransformer(TEXT_MODEL_NAME, device=DEVICE)
+
+@st.cache_resource
+def load_text_model():
+    print(f"Loading Text Model: {TEXT_MODEL_NAME}...")
+    text_model = SentenceTransformer(TEXT_MODEL_NAME, device=DEVICE)
+    return text_model
 
 # --- 2.5 CLASSIFICATION MODEL SETUP ---
 # Custom Object for Model Loading
@@ -53,6 +62,7 @@ classifier_model = None
 CLASSIFIER_MODEL_PATH = os.path.join(BASE_DIR, "multilabeling_model.keras")
 classifier_model = None
 
+@st.cache_resource
 def load_local_classifier():
     """Loads and returns the classifier model so it can be cached externally."""
     try:
@@ -174,10 +184,12 @@ def process_image_for_visual_model(image_path):
         print(f"Error processing {image_path}: {e}")
         return None
 
+@st.cache_data
 def get_visual_embeddings(image_path):
     img = process_image_for_visual_model(image_path)
     if not img: return None
     try:
+        visual_processor, visual_model = load_visual_model()
         inputs = visual_processor(images=img, return_tensors="pt").to(DEVICE)
         with torch.no_grad():
             features = visual_model.get_image_features(**inputs)
@@ -187,9 +199,11 @@ def get_visual_embeddings(image_path):
         print(f"Visual encoding error: {e}")
         return None
 
+@st.cache_data
 def get_text_embeddings(text):
     if not text or len(text.strip()) == 0: return None
     try:
+        text_model = load_text_model()
         embedding = text_model.encode(text, convert_to_tensor=True, device=DEVICE)
         embedding = embedding / embedding.norm(p=2, dim=-1, keepdim=True)
         return embedding.cpu().tolist()
